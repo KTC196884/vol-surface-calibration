@@ -2,6 +2,7 @@
 
 ## 1. 專案結構 (Project Structure)
 
+```text
 vol_surface_calibration/
 │
 ├── README.md
@@ -42,7 +43,7 @@ vol_surface_calibration/
 │
 └── results/                # 輸出結果
     └── figures/
-
+```
 ---
 
 ## 2. requirements.txt
