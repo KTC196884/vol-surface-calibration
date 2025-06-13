@@ -47,13 +47,13 @@ vol_surface_calibration/
 ---
 
 ## 2. requirements.txt
-
+```text
 numpy>=1.21.0,<2.0
 pandas>=1.3.0,<2.0
 scipy>=1.7.0,<2.0
 matplotlib>=3.4.0,<4.0
 plotly>=5.0.0,<6.0
-
+```
 ---
 
 ## 4. README.md
@@ -69,23 +69,23 @@ A Python package and set of scripts to preprocess option data, compute implied v
 ## 🚀 Installation
 
 1. 建議先建立並啟動虛擬環境：
-   ```
+   ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    ```
 2. 安裝必要套件：
-   ```
+   ```bash
    pip install -r requirements.txt
    ```
 3. （可選）安裝開發／測試工具：
-   ```
+   ```bash
    pip install -r requirements-dev.txt
    ```
 
 ## 🔧 Usage
 
 ### 作為套件引用
-```
+```python
 from vol_surface_calibration import preprocessor, iv_calculator, svi_calibrator
 
 # 示例流程
@@ -95,7 +95,7 @@ params = svi_calibrator.calibrate(iv_df, expiry="2023-07-21")
 ```
 
 ### 執行命令列腳本
-```
+```bash
 # 預處理資料
 python scripts/0_run_data_preprocessor.py --input data/raw --output data/processed
 
@@ -113,4 +113,4 @@ python scripts/4_run_svi_plotter.py --input results/figures --output results/fig
 
 # 波動率繪圖器
 python scripts/5_run_vol_plotter.py --input results/figures --output results/figures
-``'
+```
