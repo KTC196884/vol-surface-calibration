@@ -1,0 +1,148 @@
+\documentclass[xe, 12pt]{beamer}
+\usepackage{lmodern}
+\input{/Users/jack/Documents/Latex_headers/beamer_header.tex}
+\usepackage[export]{adjustbox}
+\DeclareMathOperator{\exphigh}{\mathrm{expand-H}}
+\DeclareMathOperator{\explow}{\mathrm{expand-L}}
+\DeclareMathOperator{\expstd}{\mathrm{expand-std}}
+\DeclareMathOperator{\rollhigh}{\mathrm{roll-H}}
+\DeclareMathOperator{\rolllow}{\mathrm{roll-L}}
+\DeclareMathOperator{\rollstd}{\mathrm{roll-std}}
+
+\title[VICI: Option Task Overview]{VICI: Option Task Overview}
+\author[陳冠廷 Jack]{陳冠廷 Jack}
+\institute[MATH, NTHU]{
+  \normalsize{\small Department of Mathematics, \\
+  National Tsing Hua University}
+}
+\date[\today]{\today}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}{Task 1: ATM IV \& Slope}
+\begin{enumerate}
+\item 篩選 TXO 與 TX data (expiry: \textsf{202308})
+\item 將 tick 資料 resample 為 1min k
+\item 依時間逐步計算 Implied Volatility
+\item 使用 SVI 模型進行 IV Calibration
+\item 使用 SVI 計算 ATM IV 與 ATM Slope
+\item 繪製圖表：Future 與 ATM IV、Future 與 ATM Slope
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Task 2: Realized Volatility}
+\begin{enumerate}
+\item 將 TX tick 資料 resample 為 10s k (為了降噪不使用 tick)
+\item 計算 5min rolling 的 Realized Vol \& Rogers–Satchell Vol
+\item 將結果 resample 為 1m 級別並繪製圖表
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large \textsf{Task 1: ATM IV \& Slope}
+\end{center}
+\end{frame}
+
+\begin{frame}{Compute ATM IV \& Slope}
+\begin{itemize}
+\item Use SVI calibration:
+  \begin{itemize}
+  \item Smooth
+  \item Well-behaved at large strike, has a linear tail
+  \item Can extrapolation, unlike linear/cubic spline
+  \item Butterfly arbitrage‐free (theor)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Basic Setting}
+Set:
+  \begin{itemize}
+  \item \(r = 0\)
+  \item \(T = \text{ts} - \textsf{``2023-08-16 13:30:00''}\) and annualized (252 days)
+  \item \( F = \text{TX futures price} \) (as the forward for convenience)
+  \end{itemize}
+
+\vspace{10pt}
+BS model:
+  \begin{align*}
+  \text{Call} &= e^{-rT} \left[ F \Phi(d_1) - K \Phi(d_2) \right] \\
+  \text{Put} &= e^{-rT} \left[ K \Phi(-d_2) - F \Phi(-d_1) \right]
+  \end{align*}
+with $d_1 = \frac{\log(F/K) + \frac{1}{2} \sigma^2 T}{\sigma \sqrt{T}}$,  $d_2= d_1 - \sigma \sqrt{T}$
+\end{frame}
+
+\begin{frame}{SVI Model}
+On a total implied variance curve (obtained from an IV smile), \\
+the curve is modeled as:
+  \[
+  w_{\text{SVI}}(k; a, b, \rho, m, \sigma) = a + b \left( \rho\,(k - m) + \sqrt{(k - m)^2 + \sigma^2} \right)
+  \]
+  \begin{itemize}
+  \item Model parameters: \((a, b, \rho, m, \sigma)\)
+  \item \(k = \ln \frac{K}{F}\), log-moneyness
+  \item Find the \textit{best} params $(a, b, \rho, m, \sigma)$ to \textbf{calibrate the total implied variance curve} $w_{\text{imp}}(k)$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{SVI Model: Calibration}
+\begin{enumerate}
+\item Select OTM and near-ATM options: 
+    \begin{itemize}
+      \item Calls: \(\displaystyle k > -0.1\)  
+      \item Puts:  \(\displaystyle k < 0.2\)
+    \end{itemize}
+\item Calculate their IVs
+\item Get total implied variances: \( (k_i, w_{\text{imp}}(k_i)) \)
+\item Define a \alert{volume‐weighted} loss function:
+  \begin{multline*}
+  L(a, b, \rho, m, \sigma) \\
+  = \sum_{i} \text{volume}_i \cdot (w_{\text{imp}}(k_i) - w_{\text{SVI}}(k_i; a, b, \rho, m, \sigma))^2
+  \end{multline*}
+and find the best params $(a, b, \rho, m, \sigma)$
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{SVI Model: Total Implied Variance}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{SVI_calibration_total_IVar.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{SVI Model: Implied Volatility Smile}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{SVI_calibration_IV.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{SVI Model: ATM metrics}
+\begin{itemize}
+\item
+\textbf{ATM IV}:
+\[
+\eval{\sigma_{\text{SVI}}(k)}_{k=0} = \sqrt{\frac{w_{\text{SVI}}(0)}{T}} = \sqrt{ \frac{a + b \left( -\rho m + \sqrt{m^2 + \sigma^2} \right) }{T} }
+\]
+
+\item
+\textbf{ATM Slope}:
+\[
+\eval{\frac{d\sigma_{\text{SVI}}}{dk}(k)}_{k=0} = \eval{\frac{d}{dk} \sqrt{\frac{w_{\text{SVI}}(k)}{T}}}_{k=0}
+= \frac{b \left( \rho - \frac{m}{\sqrt{m^2 + \sigma^2}} \right)}{2 T \sigma_{\text{SVI}}(0)}
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\Large \textsf{Task 2: Realized Volatility}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+\end{document}
