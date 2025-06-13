@@ -1,13 +1,14 @@
-# Volatility Surface Calibration - Project Note
+# Volatility Surface Calibration
 
-## 1. 專案結構 (Project Structure)
+A Python package and set of scripts to preprocess option data, compute implied volatilities, calibrate the SVI model, compute volatility metrics, and generate publication-quality plots for equity/options markets.
+
+## 1. Project Structure
 
 ```text
 vol_surface_calibration/
 │
 ├── README.md
 ├── requirements.txt
-├── requirements-dev.txt   # (optional)
 ├── .gitignore
 │
 ├── data/                  # 原始、中間、處理後資料
@@ -19,13 +20,13 @@ vol_surface_calibration/
 │   └── vol_surface_calibration/  # pip-installable package
 │       ├── __init__.py
 │       ├── config.py             # 外部設定
-│       ├── preprocessor.py       # 資料預處理
-│       ├── iv_calculator.py      # 隱含波動率計算
-│       ├── svi_calibrator.py     # SVI 校準
-│       ├── metrics_calculator.py # 波動率指標計算
-│       └── visualization/        # 視覺化功能
-│           ├── svi_plotter.py    # SVI 繪圖
-│           └── vol_plotter.py    # 波動率繪圖
+│       ├── data_preprocessor.py  # 資料預處理
+│       ├── iv_calculator.py      # implied volatility
+│       ├── svi_calibrator.py     # SVI
+│       ├── linear_vol_calculator.py # for vol metrics of underlying/futures
+│       └── visualization/
+│           ├── svi_plotter.py    # SVI plot
+│           └── vol_plotter.py    # vol plot
 │
 ├── scripts/                # CLI 腳本
 │   ├── 0_run_data_preprocessor.py     # 執行資料預處理
@@ -56,17 +57,7 @@ plotly>=5.0.0,<6.0
 ```
 ---
 
-## 4. README.md
-
-# Volatility Surface Calibration
-
-A Python package and set of scripts to preprocess option data, compute implied volatilities, calibrate the SVI model, compute volatility metrics, and generate publication-quality plots for equity/options markets.
-
-## 📦 Project Structure
-
-(如上節所示)
-
-## 🚀 Installation
+## 3. Installation
 
 1. 建議先建立並啟動虛擬環境：
    ```bash
@@ -82,7 +73,7 @@ A Python package and set of scripts to preprocess option data, compute implied v
    pip install -r requirements-dev.txt
    ```
 
-## 🔧 Usage
+## 4. Usage
 
 ### 作為套件引用
 ```python
