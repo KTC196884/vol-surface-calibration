@@ -68,10 +68,7 @@ plotly>=5.0.0,<6.0
    ```bash
    pip install -r requirements.txt
    ```
-3. （可選）安裝開發／測試工具：
-   ```bash
-   pip install -r requirements-dev.txt
-   ```
+---
 
 ## 4. Usage
 
