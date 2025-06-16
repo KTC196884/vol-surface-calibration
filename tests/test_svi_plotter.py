@@ -3,15 +3,31 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1] / 'src'))
 
 import pandas as pd
-from vol_surface_calibration import (
+from iv_calibration import (
     PATHS,
-    plot_total_implied_var_svi, 
-    plot_implied_vol_svi
+    plot_with_slider,
+    build_svi_total_ivar_curve,
+    build_svi_iv_curve
 )
-    
+
 if __name__ == '__main__':
-    option_iv_df = pd.read_pickle(PATHS.option_iv)
-    svi_params_df = pd.read_pickle(PATHS.svi_params)
-    vol_metric_df = pd.read_pickle(PATHS.vol_metric)
-    plot_total_implied_var_svi(option_iv_df, vol_metric_df, svi_params_df, PATHS.svi_calibration_var)
-    plot_implied_vol_svi(option_iv_df, vol_metric_df, svi_params_df, PATHS.svi_calibration_iv)
+    option_resampled_df = pd.read_parquet(PATHS.option_resampled)
+    vol_surface_svi_df = pd.read_parquet(PATHS.vol_surface_svi)
+    
+    plot_with_slider(
+        option_resampled_df,
+        vol_surface_svi_df,
+        build_svi_total_ivar_curve,
+        'total_ivar',
+        'Total Implied Variance',
+        PATHS.svi_total_ivar_slider
+    )
+    
+    plot_with_slider(
+        option_resampled_df,
+        vol_surface_svi_df,
+        build_svi_iv_curve,
+        'iv',
+        'Implied Volitility',
+        PATHS.svi_iv_slider
+    )
